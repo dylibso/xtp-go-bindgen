@@ -9,13 +9,13 @@ import (
 )
 
 <% schema.exports.forEach(ex => { -%>
-//export <%= ex.name %>
-func _<%= ex.name %>() int32 {
+//export <%- ex.name %>
+func _<%- ex.name %>() int32 {
 	var err error
 	_ = err
   <% if (ex.input) { -%>
     <% if (ex.input.contentType === 'application/json') { -%>
-			pdk.Log(pdk.LogDebug, "<%= ex.name %>: getting JSON input")
+			pdk.Log(pdk.LogDebug, "<%- ex.name %>: getting JSON input")
 			var input <%- toGolangType(ex.input) %>
 			err = pdk.InputJSON(&input)
 			if err != nil {
@@ -24,30 +24,30 @@ func _<%= ex.name %>() int32 {
 			}
     <% } else if (ex.input.type === 'string') { -%>
       <% if (ex.input.$ref && ex.input.$ref.enum) { -%>
-			pdk.Log(pdk.LogDebug, "<%= ex.name %>: getting enum string input")
-      input, err := stringTo<%= ex.input.$ref.name %>(pdk.InputString())
+			pdk.Log(pdk.LogDebug, "<%- ex.name %>: getting enum string input")
+      input, err := stringTo<%- ex.input.$ref.name %>(pdk.InputString())
       if err != nil {
         pdk.SetError(err)
         return -1
       }
 			<% } else { -%>
-			pdk.Log(pdk.LogDebug, "<%= ex.name %>: getting string input")
+			pdk.Log(pdk.LogDebug, "<%- ex.name %>: getting string input")
 			input := pdk.InputString()
 			<% } %>
     <% } else { -%>
-			pdk.Log(pdk.LogDebug, "<%= ex.name %>: getting bytes input")
+			pdk.Log(pdk.LogDebug, "<%- ex.name %>: getting bytes input")
       input := pdk.Input()
     <% } -%>
 
-		pdk.Log(pdk.LogDebug, "<%= ex.name %>: calling implementation function")
+		pdk.Log(pdk.LogDebug, "<%- ex.name %>: calling implementation function")
     <% if (ex.output) { -%>
-      output, err := <%= ex.name %>(input)
+      output, err := <%- ex.name %>(input)
 			if err != nil {
 				pdk.SetError(err)
 				return -1
 			}
     <% } else { -%>
-      err = <%= ex.name %>(input)
+      err = <%- ex.name %>(input)
 			if err != nil {
 				pdk.SetError(err)
 				return -1
@@ -55,9 +55,9 @@ func _<%= ex.name %>() int32 {
     <% } -%>
   <% } else { -%>
     <% if (ex.output) { -%>
-      output, err := <%= ex.name %>()
+      output, err := <%- ex.name %>()
     <% } else { -%>
-      err = <%= ex.name %>()
+      err = <%- ex.name %>()
     <% } -%>
 		if err != nil {
 			pdk.SetError(err)
@@ -67,22 +67,22 @@ func _<%= ex.name %>() int32 {
 
   <% if (ex.output) { -%>
     <% if (ex.output.contentType === 'application/json') { -%>
-			pdk.Log(pdk.LogDebug, "<%= ex.name %>: setting JSON output")
+			pdk.Log(pdk.LogDebug, "<%- ex.name %>: setting JSON output")
 			err = pdk.OutputJSON(output)
 			if err != nil {
 				pdk.SetError(err)
 				return -1
 			}
     <% } else if (ex.output.type === 'string') { -%>
-			pdk.Log(pdk.LogDebug, "<%= ex.name %>: setting string output")
+			pdk.Log(pdk.LogDebug, "<%- ex.name %>: setting string output")
       pdk.OutputString(output)
     <% } else { -%>
-			pdk.Log(pdk.LogDebug, "<%= ex.name %>: setting bytes output")
+			pdk.Log(pdk.LogDebug, "<%- ex.name %>: setting bytes output")
       pdk.Output(output)
     <% } -%>
   <% } -%>
 
-	pdk.Log(pdk.LogDebug, "<%= ex.name %>: returning")
+	pdk.Log(pdk.LogDebug, "<%- ex.name %>: returning")
   return 0
 }
 
@@ -90,8 +90,8 @@ func _<%= ex.name %>() int32 {
 
 <% if (schema.imports.length > 0) { %>
 	<% Object.values(schema.imports).forEach(im => { %>
-		//go:wasmimport extism:host/user <%= im.name %>
-		func _<%= im.name %>(uint64) <%= im.output ? "uint64" : null %>
+		//go:wasmimport extism:host/user <%- im.name %>
+		func _<%- im.name %>(uint64) <%- im.output ? "uint64" : null %>
 	<% }) %>
 
 	<% } %>
@@ -100,43 +100,43 @@ func _<%= ex.name %>() int32 {
 		<% if (schema.properties.length > 0) { %>
 	
 	// <%- formatCommentBlock(schema.description, "// ") %>
-	type <%= schema.name %> struct {
+	type <%- schema.name %> struct {
 		<% schema.properties.forEach(p => { -%>
 		<% if (p.description) { -%>
 		// <%- formatCommentBlock(p.description, "// ") %>
 		<% } -%>
-		<%= makePublic(p.name) %> <%= p.nullable ? pointerToGolangType(p) : toGolangType(p) %> `json:"<%= p.name %>"`
+		<%- makePublic(p.name) %> <%- p.nullable ? pointerToGolangType(p) : toGolangType(p) %> `json:"<%- p.name %>"`
 		<% }) %>
 	}
 		<% } else if (schema.enum) { %>
 	
 	// <%- formatCommentLine(schema.description) %>
-	type <%= makePublic(schema.name) %> string
+	type <%- makePublic(schema.name) %> string
 	const (
 		<% schema.enum.forEach((variant, i) => { -%>
 			<%- `${makePublic(schema.name)}${makePublic(variant)} ${makePublic(schema.name)} = "${variant}"` %>
 		<% }) -%>
 	)
 
-	func (v <%= makePublic(schema.name) %>) String() string {
+	func (v <%- makePublic(schema.name) %>) String() string {
 		switch (v) {
 		<% schema.enum.forEach((variant) => { -%>
-		case <%= `${makePublic(schema.name)}${makePublic(variant)}` %>:
-			return `<%= variant %>`
+		case <%- `${makePublic(schema.name)}${makePublic(variant)}` %>:
+			return `<%- variant %>`
 		<% }) -%>
 		default: 
 			return ""
 		}
 	}
 
-	func stringTo<%= makePublic(schema.name) %>(s string) (<%= makePublic(schema.name) %>, error) {
+	func stringTo<%- makePublic(schema.name) %>(s string) (<%- makePublic(schema.name) %>, error) {
 		switch (s) {
 		<% schema.enum.forEach((variant) => { -%>
-		case `<%= variant %>`:
-			return <%= `${makePublic(schema.name)}${makePublic(variant)}` %>, nil
+		case `<%- variant %>`:
+			return <%- `${makePublic(schema.name)}${makePublic(variant)}` %>, nil
 		<% }) -%>
 		default:
-			return <%= makePublic(schema.name) %>(""), errors.New("unable to convert string to <%= `${makePublic(schema.name)}` %>")
+			return <%- makePublic(schema.name) %>(""), errors.New("unable to convert string to <%- `${makePublic(schema.name)}` %>")
 		}
 	}
 
@@ -146,14 +146,14 @@ func _<%= ex.name %>() int32 {
 
 <% schema.imports.forEach(imp => { %>
 	<% if (hasComment(imp)) -%>
-	// <%= makePublic(imp.name) %> <%- formatCommentBlock(imp.description, "// ") %>
+	// <%- makePublic(imp.name) %> <%- formatCommentBlock(imp.description, "// ") %>
 	<% if (hasComment(imp.input)) { -%>
-	// It takes input of <%= toGolangType(imp.input) %> (<%- formatCommentLine(imp.input.description) %>)
+	// It takes input of <%- toGolangType(imp.input) %> (<%- formatCommentLine(imp.input.description) %>)
 	<% } -%>
 	<% if (hasComment(imp.output)) { -%>
-	// And it returns an output <%= toGolangType(imp.output) %> (<%- formatCommentLine(imp.output.description) %>)
+	// And it returns an output <%- toGolangType(imp.output) %> (<%- formatCommentLine(imp.output.description) %>)
 	<% } -%>
-	func <%= makePublic(imp.name) %>(<%- imp.input ? `input ${toGolangType(imp.input)}` : null %>) <%- imp.output ? `(${pointerToGolangType(imp.output)}, error)` : "error" %> {
+	func <%- makePublic(imp.name) %>(<%- imp.input ? `input ${toGolangType(imp.input)}` : null %>) <%- imp.output ? `(${pointerToGolangType(imp.output)}, error)` : "error" %> {
 		var err error
 		_ = err
 	<% if (imp.input) { -%>
@@ -172,14 +172,14 @@ func _<%= ex.name %>() int32 {
 		mem := pdk.AllocateBytes(input)
 		<% } -%>
 
-		<% if (imp.output) { -%>offs :=<% } -%> _<%= imp.name %>(mem.Offset())
+		<% if (imp.output) { -%>offs :=<% } -%> _<%- imp.name %>(mem.Offset())
 	<% } else { -%>
-		<% if (imp.output) { -%>offs :=<% } -%> _<%= imp.name %>()
+		<% if (imp.output) { -%>offs :=<% } -%> _<%- imp.name %>()
 	<% } -%>
 	
 	<% if (imp.output) { -%>
 		<% if (imp.output.contentType === 'application/json') { -%>
-			var output <%= toGolangType(imp.output) %>
+			var output <%- toGolangType(imp.output) %>
 			err = pdk.JSONFrom(offs, &output)
 			if err != nil {
 				return nil, err
