@@ -91,7 +91,7 @@ func _<%- ex.name %>() int32 {
 <% if (schema.imports.length > 0) { %>
 	<% Object.values(schema.imports).forEach(im => { %>
 		//go:wasmimport extism:host/user <%- im.name %>
-		func _<%- im.name %>(uint64) <%- im.output ? "uint64" : null %>
+		func _<%- im.name %>(<%- im.input ? "uint64" : null %>) <%- im.output ? "uint64" : null %>
 	<% }) %>
 
 	<% } %>

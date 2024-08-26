@@ -7,8 +7,8 @@ mkdir -p $TEST_DIR
 case $1 in
   "install")
     # get the latest release
-    RELEASE_INFO=$(curl -s "https://api.github.com/repos/dylibso/xtp-bindgen-test/releases/latest")
-    ASSET_URL=$(echo $RELEASE_INFO | jq '.assets[0].browser_download_url' | tr -d \")
+    RELEASE_URL="https://api.github.com/repos/dylibso/xtp-bindgen-test/releases/latest"
+    ASSET_URL=$(curl -s $RELEASE_URL | jq '.assets[0].browser_download_url' | tr -d \")
     if [ -z "$ASSET_URL" ]; then
       echo "Asset URL not found. Please check the asset name or the repository."
       exit 1
