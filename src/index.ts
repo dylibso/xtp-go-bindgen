@@ -54,6 +54,10 @@ function makePublic(s: string) {
   return pub;
 }
 
+function goName(s: string) {
+  return makePublic(helpers.snakeToCamelCase(s));
+}
+
 export function render() {
   const tmpl = Host.inputString();
   const ctx = {
@@ -62,6 +66,7 @@ export function render() {
     toGolangType,
     pointerToGolangType,
     makePublic,
+    goName,
   };
 
   const output = ejs.render(tmpl, ctx);
