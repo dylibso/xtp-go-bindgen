@@ -2,7 +2,7 @@ import ejs from "ejs";
 import { getContext, helpers, Property } from "@dylibso/xtp-bindgen";
 
 function toGolangType(property: Property): string {
-  if (property.$ref) return property.$ref.name;
+  if (property.$ref) return goName(property.$ref.name);
   switch (property.type) {
     case "string":
       if (property.format === "date-time") {

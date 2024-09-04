@@ -100,7 +100,7 @@ func _<%- goName(ex.name) %>() int32 {
 		<% if (schema.properties.length > 0) { %>
 	
 	// <%- formatCommentBlock(schema.description, "// ") %>
-	type <%- schema.name %> struct {
+	type <%- goName(schema.name) %> struct {
 		<% schema.properties.forEach(p => { -%>
 		<% if (p.description) { -%>
 		// <%- formatCommentBlock(p.description, "// ") %>
