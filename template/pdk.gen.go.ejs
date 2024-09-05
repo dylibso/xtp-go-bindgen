@@ -184,7 +184,11 @@ func _<%- goName(ex.name) %>() int32 {
 			if err != nil {
 				return nil, err
 			}
-			return &output, nil
+			<% if (imp.output.type === 'object') { -%>
+				return output, nil
+			<% } else { %>
+				return &output, nil
+			<% } %>
 		<% } else if (imp.output.contentType === 'text/plain; charset=UTF-8') { -%>
 			outputMem := pdk.FindMemory(offs)
 			return string(outputMem.ReadBytes()), nil
