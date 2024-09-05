@@ -2,7 +2,7 @@ import ejs from "ejs";
 import { getContext, helpers, Property } from "@dylibso/xtp-bindgen";
 
 function toGolangType(property: Property): string {
-  if (property.$ref) return property.$ref.name;
+  if (property.$ref) return goName(property.$ref.name);
   switch (property.type) {
     case "string":
       if (property.format === "date-time") {
@@ -54,6 +54,10 @@ function makePublic(s: string) {
   return pub;
 }
 
+function goName(s: string) {
+  return makePublic(helpers.snakeToCamelCase(s));
+}
+
 export function render() {
   const tmpl = Host.inputString();
   const ctx = {
@@ -62,6 +66,7 @@ export function render() {
     toGolangType,
     pointerToGolangType,
     makePublic,
+    goName,
   };
 
   const output = ejs.render(tmpl, ctx);
