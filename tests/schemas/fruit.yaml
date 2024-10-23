@@ -117,4 +117,8 @@ components:
         writeParams:
           "$ref": "#/components/schemas/WriteParams"
           nullable: true
+      required:
+        - aBoolean
+        - aString
+        - writeParams
       description: A complex json object
