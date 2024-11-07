@@ -1,0 +1,422 @@
+---
+version: v1-draft
+exports:
+  noInputExport:
+    description: Export with no input
+    output:
+      type: string
+      contentType: text/plain; charset=utf-8
+      description: Simple output
+  noOutputExport:
+    description: Export with no output
+    input:
+      type: string
+      contentType: text/plain; charset=utf-8
+      description: Simple input
+  emptyExport:
+    description: Export with neither input nor output
+  stringToStringExport:
+    description: Export with string input and output
+    input:
+      type: string
+      contentType: text/plain; charset=utf-8
+      description: Plain text input
+    output:
+      type: string
+      contentType: text/plain; charset=utf-8
+      description: Plain text output
+  stringToJsonExport:
+    description: Export with string input and JSON output
+    input:
+      type: string
+      contentType: text/plain; charset=utf-8
+      description: Plain text input
+    output:
+      type: object
+      contentType: application/json
+      description: JSON output
+  jsonToStringExport:
+    description: Export with JSON input and string output
+    input:
+      type: object
+      contentType: application/json
+      description: JSON input
+    output:
+      type: string
+      contentType: text/plain; charset=utf-8
+      description: Plain text output
+  bufferToBufferExport:
+    description: Export with buffer input and output
+    input:
+      type: buffer
+      contentType: application/x-binary
+      description: Binary input
+    output:
+      type: buffer
+      contentType: application/x-binary
+      description: Binary output
+  bufferToJsonExport:
+    description: Export with buffer input and JSON output
+    input:
+      type: buffer
+      contentType: application/x-binary
+      description: Binary input
+    output:
+      type: object
+      contentType: application/json
+      description: JSON output with processing results
+  jsonToBufferExport:
+    description: Export with JSON input and buffer output
+    input:
+      type: object
+      contentType: application/json
+      description: JSON input with configuration
+    output:
+      type: buffer
+      contentType: application/x-binary
+      description: Generated binary output
+  simpleJsonExport:
+    description: Export with simple JSON types
+    input:
+      type: object
+      contentType: application/json
+      description: Simple JSON input
+    output:
+      type: object
+      contentType: application/json
+      description: Simple JSON output
+  complexJsonExport:
+    description: Export with complex nested JSON
+    input:
+      "$ref": "#/components/schemas/ComplexObject"
+      contentType: application/json
+      description: Complex JSON input
+    output:
+      "$ref": "#/components/schemas/ComplexObject"
+      contentType: application/json
+      description: Complex JSON output
+  arrayJsonExport:
+    description: Export with JSON arrays
+    input:
+      type: array
+      contentType: application/json
+      description: Array input
+      items:
+        type: object
+    output:
+      type: array
+      contentType: application/json
+      description: Array output
+      items:
+        "$ref": "#/components/schemas/NestedObject"
+  simpleRefExport:
+    description: Export with simple schema reference
+    input:
+      "$ref": "#/components/schemas/NestedObject"
+      contentType: application/json
+      description: Simple reference input
+    output:
+      "$ref": "#/components/schemas/NestedObject"
+      contentType: application/json
+      description: Simple reference output
+  arrayRefExport:
+    description: Export with array of references
+    input:
+      type: array
+      contentType: application/json
+      description: Array of referenced objects
+      items:
+        "$ref": "#/components/schemas/NestedObject"
+    output:
+      type: array
+      contentType: application/json
+      description: Processed array of objects
+      items:
+        "$ref": "#/components/schemas/ComplexObject"
+  nestedRefExport:
+    description: Export with nested references
+    input:
+      "$ref": "#/components/schemas/ComplexObject"
+      contentType: application/json
+      description: Nested reference input
+    output:
+      contentType: application/json
+      description: Nested output structure
+      "$ref": "#/components/schemas/NestedObject"
+  mixedTypesExport:
+    description: Export demonstrating mixed content types and formats
+    input:
+      type: object
+      contentType: application/json
+      description: Mixed type input object
+    output:
+      type: object
+      contentType: application/json
+      description: Mixed type response
+imports:
+  noInputImport:
+    description: Import with no input
+    output:
+      type: string
+      contentType: text/plain; charset=utf-8
+      description: Simple output
+  noOutputImport:
+    description: Import with no output
+    input:
+      type: string
+      contentType: text/plain; charset=utf-8
+      description: Simple input
+  emptyImport:
+    description: Import with neither input nor output
+  stringToStringImport:
+    description: Import with string input and output
+    input:
+      type: string
+      contentType: text/plain; charset=utf-8
+      description: Plain text input
+    output:
+      type: string
+      contentType: text/plain; charset=utf-8
+      description: Plain text output
+  stringToJsonImport:
+    description: Import with string input and JSON output
+    input:
+      type: string
+      contentType: text/plain; charset=utf-8
+      description: Plain text input
+    output:
+      type: object
+      contentType: application/json
+      description: JSON output
+  jsonToStringImport:
+    description: Import with JSON input and string output
+    input:
+      type: object
+      contentType: application/json
+      description: JSON input
+    output:
+      type: string
+      contentType: text/plain; charset=utf-8
+      description: Plain text output
+  bufferToBufferImport:
+    description: Import with buffer input and output
+    input:
+      type: buffer
+      contentType: application/x-binary
+      description: Binary input
+    output:
+      type: buffer
+      contentType: application/x-binary
+      description: Binary output
+  bufferToJsonImport:
+    description: Import with buffer input and JSON output
+    input:
+      type: buffer
+      contentType: application/x-binary
+      description: Binary input
+    output:
+      type: object
+      contentType: application/json
+      description: JSON output with processing results
+  jsonToBufferImport:
+    description: Import with JSON input and buffer output
+    input:
+      type: object
+      contentType: application/json
+      description: JSON input with configuration
+    output:
+      type: buffer
+      contentType: application/x-binary
+      description: Generated binary output
+  simpleJsonImport:
+    description: Import with simple JSON types
+    input:
+      type: object
+      contentType: application/json
+      description: Simple JSON input
+    output:
+      type: object
+      contentType: application/json
+      description: Simple JSON output
+  complexJsonImport:
+    description: Import with complex nested JSON
+    input:
+      "$ref": "#/components/schemas/ComplexObject"
+      contentType: application/json
+      description: Complex JSON input
+    output:
+      "$ref": "#/components/schemas/ComplexObject"
+      contentType: application/json
+      description: Complex JSON output
+  arrayJsonImport:
+    description: Import with JSON arrays
+    input:
+      type: array
+      contentType: application/json
+      description: Array input
+      items:
+        type: object
+    output:
+      type: array
+      contentType: application/json
+      description: Array output
+      items:
+        "$ref": "#/components/schemas/NestedObject"
+  simpleRefImport:
+    description: Import with simple schema reference
+    input:
+      "$ref": "#/components/schemas/NestedObject"
+      contentType: application/json
+      description: Simple reference input
+    output:
+      "$ref": "#/components/schemas/NestedObject"
+      contentType: application/json
+      description: Simple reference output
+  arrayRefImport:
+    description: Import with array of references
+    input:
+      type: array
+      contentType: application/json
+      description: Array of referenced objects
+      items:
+        "$ref": "#/components/schemas/NestedObject"
+    output:
+      type: array
+      contentType: application/json
+      description: Processed array of objects
+      items:
+        "$ref": "#/components/schemas/ComplexObject"
+  nestedRefImport:
+    description: Import with nested references
+    input:
+      "$ref": "#/components/schemas/ComplexObject"
+      contentType: application/json
+      description: Nested reference input
+    output:
+      type: object
+      contentType: application/json
+      description: Nested output structure
+      "$ref": "#/components/schemas/NestedObject"
+  mixedTypesImport:
+    description: Import demonstrating mixed content types and formats
+    input:
+      type: object
+      contentType: application/json
+      description: Mixed type input object
+    output:
+      type: object
+      contentType: application/json
+      description: Mixed type response
+  reflectJsonObjectHost:
+    description: |
+      This function takes a ComplexObject and returns a ComplexObject.
+      It should come out the same way it came in. It's the same as the export.
+      But the export should call this.
+    input:
+      contentType: application/json
+      $ref: "#/components/schemas/ComplexObject"
+    output:
+      contentType: application/json
+      $ref: "#/components/schemas/ComplexObject"
+  reflectUtf8StringHost:
+    description: |
+      This function takes a string and returns it.
+      Should come out the same way it came in. Same as export.
+    input:
+      type: string
+      description: The input string
+      contentType: text/plain; charset=utf-8
+    output:
+      type: string
+      description: The output string
+      contentType: text/plain; charset=utf-8
+  reflectByteBufferHost:
+    description: |
+      This function takes a bugger and returns it.
+      Should come out the same way it came in. Same as export.
+    input:
+      contentType: application/x-binary
+      type: buffer
+      description: The input byte buffer
+    output:
+      contentType: application/x-binary
+      type: buffer
+      description: The output byte buffer
+
+  noInputWithOutputHost:
+    description: a function that takes no input, but returns an output
+    output:
+      contentType: text/plain; charset=utf-8
+      type: string
+
+  withInputNoOutputHost:
+    description: a function that takes input, but returns no output
+    input:
+      contentType: application/json
+      type: integer
+
+  noInputNoOutputHost:
+    description: a function that takes no input, and returns no output
+components:
+  schemas:
+    ComplexObject:
+      description: Object with all possible property types
+      properties:
+        stringField:
+          type: string
+          description: String field
+        numberField:
+          type: number
+          format: double
+          description: Number field
+        integerField:
+          type: integer
+          format: int64
+          description: Integer field
+        booleanField:
+          type: boolean
+          description: Boolean field
+        arrayField:
+          type: array
+          items:
+            type: string
+          description: Array field
+        objectField:
+          type: object
+          description: Untyped Object field
+        nullableField:
+          type: string
+          nullable: true
+          description: Nullable field
+        referenceField:
+          "$ref": "#/components/schemas/NestedObject"
+          description: Reference field
+        enumField:
+          "$ref": "#/components/schemas/EnumExample"
+          description: Enum field
+      required:
+      - stringField
+      - numberField
+    NestedObject:
+      description: Object for nested references
+      properties:
+        id:
+          type: string
+          description: Identifier
+        value:
+          type: number
+          format: double
+          description: Value
+        metadata:
+          type: object
+          description: Untyped Metadata information
+      required:
+      - id
+    EnumExample:
+      type: string
+      description: Example string enum
+      enum:
+      - PENDING
+      - PROCESSING
+      - COMPLETED
+      - FAILED

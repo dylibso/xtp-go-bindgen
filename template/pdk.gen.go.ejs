@@ -14,7 +14,7 @@ func _<%- goName(ex.name) %>() int32 {
 	var err error
 	_ = err
   <% if (ex.input) { -%>
-    <% if (ex.input.contentType === 'application/json') { -%>
+    <% if (isJsonEncoded(ex.input)) { -%>
 			pdk.Log(pdk.LogDebug, "<%- goName(ex.name) %>: getting JSON input")
 			var input <%- toGolangType(ex.input) %>
 			err = pdk.InputJSON(&input)
@@ -22,18 +22,16 @@ func _<%- goName(ex.name) %>() int32 {
 				pdk.SetError(err)
 				return -1
 			}
-    <% } else if (ex.input.type === 'string') { -%>
-      <% if (ex.input.$ref && ex.input.$ref.enum) { -%>
+    <% } else if (isString(ex.input)) { -%>
+			pdk.Log(pdk.LogDebug, "<%- goName(ex.name) %>: getting string input")
+			input := pdk.InputString()
+    <% } else if (isEnum(ex.input)) { -%>
 			pdk.Log(pdk.LogDebug, "<%- goName(ex.name) %>: getting enum string input")
-      input, err := stringTo<%- goName(ex.input.$ref.name) %>(pdk.InputString())
+      input, err := stringTo<%- goName(ex.input.xtpType.name) %>(pdk.InputString())
       if err != nil {
         pdk.SetError(err)
         return -1
       }
-			<% } else { -%>
-			pdk.Log(pdk.LogDebug, "<%- goName(ex.name) %>: getting string input")
-			input := pdk.InputString()
-			<% } %>
     <% } else { -%>
 			pdk.Log(pdk.LogDebug, "<%- goName(ex.name) %>: getting bytes input")
       input := pdk.Input()
@@ -66,14 +64,14 @@ func _<%- goName(ex.name) %>() int32 {
   <% } -%>
 
   <% if (ex.output) { -%>
-    <% if (ex.output.contentType === 'application/json') { -%>
+    <% if (isJsonEncoded(ex.output)) { -%>
 			pdk.Log(pdk.LogDebug, "<%- goName(ex.name) %>: setting JSON output")
 			err = pdk.OutputJSON(output)
 			if err != nil {
 				pdk.SetError(err)
 				return -1
 			}
-    <% } else if (ex.output.type === 'string') { -%>
+    <% } else if (isString(ex.output)) { -%>
 			pdk.Log(pdk.LogDebug, "<%- goName(ex.name) %>: setting string output")
       pdk.OutputString(output)
     <% } else { -%>
@@ -97,7 +95,7 @@ func _<%- goName(ex.name) %>() int32 {
 	<% } %>
 	
 	<% Object.values(schema.schemas).forEach(schema => { %>
-		<% if (schema.properties.length > 0) { %>
+		<% if (isObject(schema)) { %>
 	
 	// <%- formatCommentBlock(schema.description, "// ") %>
 	type <%- goName(schema.name) %> struct {
@@ -105,23 +103,22 @@ func _<%- goName(ex.name) %>() int32 {
 		<% if (p.description) { -%>
 		// <%- formatCommentBlock(p.description, "// ") %>
 		<% } -%>
-    <% let isPointer = p.nullable || !p.required %>
-		<%- goName(p.name) %> <%- isPointer ? pointerToGolangType(p) : toGolangType(p) %> `json:"<%- p.name %><%- !p.required ? ",omitempty" : null %>"`
+		<%- goName(p.name) %> <%- toGolangType(p, p.required) %> `json:"<%- p.name %><%- !p.required ? ",omitempty" : null %>"`
 		<% }) %>
 	}
-		<% } else if (schema.enum) { %>
+		<% } else if (isEnum(schema)) { %>
 	
 	// <%- formatCommentLine(schema.description) %>
 	type <%- goName(schema.name) %> string
 	const (
-		<% schema.enum.forEach((variant, i) => { -%>
+		<% schema.xtpType.values.forEach((variant, i) => { -%>
 			<%- `${goName(schema.name)}${goName(variant)} ${goName(schema.name)} = "${variant}"` %>
 		<% }) -%>
 	)
 
 	func (v <%- goName(schema.name) %>) String() string {
 		switch (v) {
-		<% schema.enum.forEach((variant) => { -%>
+		<% schema.xtpType.values.forEach((variant) => { -%>
 		case <%- `${goName(schema.name)}${goName(variant)}` %>:
 			return `<%- variant %>`
 		<% }) -%>
@@ -132,7 +129,7 @@ func _<%- goName(ex.name) %>() int32 {
 
 	func stringTo<%- goName(schema.name) %>(s string) (<%- goName(schema.name) %>, error) {
 		switch (s) {
-		<% schema.enum.forEach((variant) => { -%>
+		<% schema.xtpType.values.forEach((variant) => { -%>
 		case `<%- variant %>`:
 			return <%- `${goName(schema.name)}${goName(variant)}` %>, nil
 		<% }) -%>
@@ -146,28 +143,27 @@ func _<%- goName(ex.name) %>() int32 {
 
 
 <% schema.imports.forEach(imp => { %>
+	<% let returnType = imp.output ? toGolangReturnType(imp.output) : null -%>
 	<% if (hasComment(imp)) -%>
 	// <%- goName(imp.name) %> <%- formatCommentBlock(imp.description, "// ") %>
 	<% if (hasComment(imp.input)) { -%>
 	// It takes input of <%- toGolangType(imp.input) %> (<%- formatCommentLine(imp.input.description) %>)
 	<% } -%>
 	<% if (hasComment(imp.output)) { -%>
-	// And it returns an output <%- toGolangType(imp.output) %> (<%- formatCommentLine(imp.output.description) %>)
+	// And it returns an output <%- returnType %> (<%- formatCommentLine(imp.output.description) %>)
 	<% } -%>
-	func <%- goName(imp.name) %>(<%- imp.input ? `input ${toGolangType(imp.input)}` : null %>) <%- imp.output ? `(${pointerToGolangType(imp.output)}, error)` : "error" %> {
+	func <%- goName(imp.name) %>(<%- imp.input ? `input ${toGolangType(imp.input)}` : null %>) <%- imp.output ? `(${returnType}, error)` : "error" %> {
 		var err error
 		_ = err
 	<% if (imp.input) { -%>
-		<% if (imp.input.contentType === 'application/json') { -%>
+		<% if (isJsonEncoded(imp.input)) { -%>
 		mem, err := pdk.AllocateJSON(&input)
 		if err != nil {
 			return <%- imp.output ? "nil, err" : "err" %>
 		}
-		<% } else if (imp.input.$ref && imp.input.$ref.enum) { -%>
+		<% } else if (isEnum(imp.input)) { -%>
 		mem := pdk.AllocateString(input.String())
-		<% } else if (imp.input.contentType === 'text/plain; charset=UTF-8') { -%>
-		mem := pdk.AllocateString(input)
-		<% } else if (imp.input.type === 'string') { -%>
+		<% } else if (isString(imp.input) || isUtf8Encoded(imp.input)) { -%>
 		mem := pdk.AllocateString(input)
 		<% } else { -%>
 		mem := pdk.AllocateBytes(input)
@@ -179,23 +175,22 @@ func _<%- goName(ex.name) %>() int32 {
 	<% } -%>
 	
 	<% if (imp.output) { -%>
-		<% if (imp.output.contentType === 'application/json') { -%>
-			var output <%- toGolangType(imp.output) %>
-			err = pdk.JSONFrom(offs, &output)
+		<% let returnVar = returnType.startsWith('*') ? '&out' : 'out' %>
+		<% if (isJsonEncoded(imp.output)) { -%>
+			var out <%- toGolangType(imp.output) %>
+			err = pdk.JSONFrom(offs, &out)
 			if err != nil {
 				return nil, err
 			}
-			return &output, nil
-		<% } else if (imp.output.contentType === 'text/plain; charset=UTF-8') { -%>
-			outputMem := pdk.FindMemory(offs)
-			return string(outputMem.ReadBytes()), nil
-		<% } else if (imp.output.type === 'string') { -%>
+			return <%- returnVar %>, nil
+		<% } else if (isString(imp.output) || isUtf8Encoded(imp.output)) { -%>
 			outputMem := pdk.FindMemory(offs)
 			out := string(outputMem.ReadBytes())
-			return &out, err
+			return <%- returnVar %>, nil
 		<% } else { -%>
 			outputMem := pdk.FindMemory(offs)
-			return outputMem.ReadBytes(), nil
+			out := outputMem.ReadBytes()
+			return <%- returnVar %>, nil
 		<% } -%>
 	<% } else { %>
 		return nil
