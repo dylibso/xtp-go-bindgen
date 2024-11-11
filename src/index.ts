@@ -12,6 +12,8 @@ function toGolangTypeX(type: XtpNormalizedType): string {
       return pointerify('string')
     case 'int32':
       return pointerify('int32')
+    case 'int64':
+      return pointerify('int64')
     case 'float':
       return pointerify('float32')
     case 'double':
