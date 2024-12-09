@@ -4,6 +4,8 @@ import { helpers, getContext, ObjectType, EnumType, ArrayType, XtpNormalizedType
 function toGolangTypeX(type: XtpNormalizedType): string {
   // turn into reference pointer if needed
   const pointerify = (t: string) => {
+    if (t.startsWith("interface{}")) return t
+    
     return `${type.nullable ? '*' : ''}${t}`
   }
 
@@ -35,7 +37,9 @@ function toGolangTypeX(type: XtpNormalizedType): string {
         return pointerify(goName(oType.name))
       } else {
         // let's use empty interface for an untyped object
-        return pointerify("interface{}")
+        // NOTE: skipping pointerify, as interface{} has all
+        // them right properties already.
+        return "interface{}"
       }
     case 'enum':
       return pointerify(goName((type as EnumType).name))
@@ -65,7 +69,7 @@ function toGolangType(property: XtpTyped, required?: boolean): string {
 function toGolangReturnType(property: Property): string {
   const t = toGolangTypeX(property.xtpType)
 
-  if (t.startsWith('[]') || t.startsWith('map[')) return t
+  if (t.startsWith('[]') || t.startsWith('map[') || t.startsWith('interface{}')) return t
   return `*${t}`
 }
 
