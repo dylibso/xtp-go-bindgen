@@ -68,3 +68,5 @@ if ! (command_exists tinygo); then
   echo "    pacman -S extra/tinygo"
   echo ""
 fi
+
+go install golang.org/x/tools/cmd/goimports@latest
