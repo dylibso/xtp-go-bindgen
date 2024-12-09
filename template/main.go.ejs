@@ -2,6 +2,8 @@
 // ./pdk.gen.go contains the domain types from the host where your plugin will run.
 package main
 
+import "errors"
+
 <% schema.exports.forEach(ex => { %>
 <% if (hasComment(ex)) -%>	
 // <%- formatCommentBlock(ex.description, "// ") %>
