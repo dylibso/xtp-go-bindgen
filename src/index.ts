@@ -4,8 +4,6 @@ import { helpers, getContext, ObjectType, EnumType, ArrayType, XtpNormalizedType
 function toGolangTypeX(type: XtpNormalizedType): string {
   // turn into reference pointer if needed
   const pointerify = (t: string) => {
-    if (t.startsWith("interface{}")) return t
-    
     return `${type.nullable ? '*' : ''}${t}`
   }
 
@@ -62,6 +60,11 @@ function toGolangType(property: XtpTyped, required?: boolean): string {
 
   // otherwise it's false, so let's ensure it's a pointer
   if (t.startsWith('*')) return t
+
+  // for properties that are interface{},
+  // we don't need them to be a pointer as they are nilable
+  if (t.startsWith('interface{}')) return t
+
   return `*${t}`
 }
 
