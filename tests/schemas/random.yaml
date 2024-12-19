@@ -1,3 +1,4 @@
+# yaml-language-server: $schema=https://xtp.dylibso.com/assets/wasm/schema.json
 ---
 version: v1-draft
 exports:
@@ -293,7 +294,6 @@ imports:
       contentType: application/json
       description: Nested reference input
     output:
-      type: object
       contentType: application/json
       description: Nested output structure
       "$ref": "#/components/schemas/NestedObject"

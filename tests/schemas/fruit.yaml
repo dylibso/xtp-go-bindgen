@@ -1,3 +1,4 @@
+# yaml-language-server: $schema=https://xtp.dylibso.com/assets/wasm/schema.json
 exports:
   voidFunc:
     description: "This demonstrates how you can create an export with\nno inputs or
@@ -72,7 +73,6 @@ imports:
       description: the raw byte values at key
   kv_write:
     description: kvwrite
-    contentType: application/json
     input:
       contentType: application/json
       "$ref": "#/components/schemas/WriteParams"
