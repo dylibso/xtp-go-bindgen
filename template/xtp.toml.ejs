@@ -14,4 +14,4 @@ build = "mkdir -p dist && tinygo build -buildmode c-shared -target wasip1 -o dis
 format = "go fmt && go mod tidy && goimports -w main.go"
 
 # xtp plugin init runs this script before running the format script
-prepare = "sh prepare.sh && go get ./..."
+prepare = "bash prepare.sh && go get ./..."
